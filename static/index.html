@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,10 +11,10 @@
   <div id="login" class="modal hidden" role="dialog" aria-labelledby="login-title">
     <form id="login-form" class="card">
       <p class="kicker">LAVENDER BAKERY COPILOT</p>
-      <h1 id="login-title">Sign in</h1>
-      <label>Your name<input id="login-name" name="name" autocomplete="username" required minlength="2" maxlength="40" placeholder="Dana"></label>
-      <label>Team password<input id="login-password" name="password" type="password" autocomplete="current-password" required></label>
-      <button type="submit" class="primary">Enter</button>
+      <h1 id="login-title">כניסה</h1>
+      <label>השם שלך<input id="login-name" name="name" autocomplete="username" required minlength="2" maxlength="40" placeholder="דנה"></label>
+      <label>סיסמת הצוות<input id="login-password" name="password" type="password" autocomplete="current-password" required></label>
+      <button type="submit" class="primary">כניסה</button>
       <p id="login-error" class="error" role="alert"></p>
     </form>
   </div>
@@ -25,37 +25,37 @@
         <span class="dot"></span>
         <div><strong>Lavender Bakery Copilot</strong><small id="who"></small></div>
       </div>
-      <button id="new-chat" class="primary wide">+ New chat</button>
-      <nav id="conversations" class="conversations" aria-label="Conversations"></nav>
+      <button id="new-chat" class="primary wide">+ שיחה חדשה</button>
+      <nav id="conversations" class="conversations" aria-label="שיחות"></nav>
       <div class="sidebar-foot">
-        <button id="toggle-invoices" class="ghost">Invoices</button>
-        <button id="logout" class="ghost">Sign out</button>
+        <button id="toggle-invoices" class="ghost">חשבוניות</button>
+        <button id="logout" class="ghost">יציאה</button>
       </div>
     </aside>
 
     <main class="main">
       <header class="topbar">
-        <h2 id="conv-title">New chat</h2>
+        <h2 id="conv-title">שיחה חדשה</h2>
         <span id="status" class="status"></span>
       </header>
 
       <section id="messages" class="messages" aria-live="polite"></section>
 
       <form id="composer" class="composer">
-        <label class="attach" title="Attach an invoice photo">
+        <label class="attach" title="צירוף צילום חשבונית">
           <input id="image" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M16.5 6.5v9a4.5 4.5 0 0 1-9 0V5a3 3 0 0 1 6 0v10a1.5 1.5 0 0 1-3 0V6.5"/></svg>
         </label>
-        <textarea id="input" rows="1" placeholder="Ask about sales, or attach an invoice…" required></textarea>
-        <button id="send" type="submit" class="primary">Send</button>
+        <textarea id="input" rows="1" placeholder="מה תרצו לדעת? כתבו כאן…" required></textarea>
+        <button id="send" type="submit" class="primary">שליחה</button>
       </form>
       <p id="attachment" class="attachment hidden"></p>
     </main>
 
-    <aside id="invoices" class="panel hidden" aria-label="Recent invoices">
-      <header><h3>Recent invoices</h3><button id="close-invoices" class="ghost">✕</button></header>
+    <aside id="invoices" class="panel hidden" aria-label="חשבוניות אחרונות">
+      <header><h3>חשבוניות אחרונות</h3><button id="close-invoices" class="ghost" aria-label="סגירה">✕</button></header>
       <table>
-        <thead><tr><th>Date</th><th>Supplier</th><th>Amount</th><th>Status</th></tr></thead>
+        <thead><tr><th>תאריך</th><th>ספק</th><th>סכום</th><th>סטטוס</th></tr></thead>
         <tbody id="invoice-rows"></tbody>
       </table>
     </aside>

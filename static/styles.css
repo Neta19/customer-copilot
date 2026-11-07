@@ -61,7 +61,7 @@ button:disabled { opacity: .55; cursor: default; }
 .brand .dot::after { content: "🌼"; font-size: 17px; }
 .sidebar > .primary { margin: 14px 12px 8px; width: auto; }
 .conversations { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; padding: 4px 8px 8px; }
-.conversations::before { content: "Conversations"; font-size: 12px; font-weight: 500; color: var(--dim); padding: 10px 8px 6px; }
+.conversations::before { content: "שיחות"; font-size: 12px; font-weight: 500; color: var(--dim); padding: 10px 8px 6px; }
 .conversations button { text-align: start; background: transparent; border-color: transparent; color: var(--muted); padding: 7px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .conversations button:hover { background: var(--field); color: var(--ink); }
 .conversations button.active { background: var(--accent); color: var(--on-accent); }
