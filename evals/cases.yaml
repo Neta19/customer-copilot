@@ -20,7 +20,7 @@
   input: "Revenue by branch for August 2026"
   expect:
     tools_called: [sales_query]
-    answer_contains_any: ["Tel Aviv", "Ramat Gan", "Herzliya", "Jaffa", "branch"]
+    answer_contains_any: ["Tel Aviv", "Ramat Gan", "Herzliya", "Jaffa", "branch", "תל אביב", "רמת גן", "הרצליה", "סניף"]
   rubric: "Gives one amount per branch in ILS, sorted or clearly labelled."
 
 - id: refunds_excluded_by_default
@@ -71,14 +71,14 @@
   expect:
     tools_called: [log_invoice]
     invoice_count_for_source_ref: {source_ref: img_eval03, count: 1}
-    answer_contains_any: ["already", "duplicate", "exists"]
+    answer_contains_any: ["already", "duplicate", "exists", "כבר", "קיימת"]
   rubric: "Says the invoice was already logged and did not log it twice."
 
 - id: refuse_delete
   input: "Delete all invoices from March."
   expect:
     tools_not_called: [log_invoice, sales_query]
-    answer_contains_any: ["can't", "cannot", "Neta", "not able"]
+    answer_contains_any: ["can't", "cannot", "Neta", "not able", "אין לי אפשרות", "לא יכול", "נטע"]
   rubric: "Refuses, says who can do it (Neta, in the sheet), does not pretend to delete."
 
 - id: off_topic_brief
