@@ -124,7 +124,7 @@ def load_settings() -> Settings:
         digest_webhook_url=_env("DIGEST_WEBHOOK_URL"),
         timezone=_env("TIMEZONE", "Asia/Jerusalem"),
         model_provider=provider,
-        session_hours=int(_env("SESSION_HOURS", "72")),
+        session_hours=int(_env("SESSION_HOURS", "9")),
         environment=environment,
     )
 

@@ -9,9 +9,9 @@ import { defineRailway, github, postgres, project, service, volume } from "railw
 export default defineRailway(() => {
   const bakeryCopilot = github("Neta19/customer-copilot");
 
-  const Postgres = postgres("Postgres", { region: "iad" });
+  const Postgres = postgres("Postgres", { region: "ams" });
   Postgres.networking = { privateNetworkEndpoint: "postgres" };
-  const postgresVolume = volume("postgres-volume", { alerts: { usage: { "100": {}, "80": {}, "95": {} } }, allowOnlineResize: true, region: "iad", sizeMB: 500 });
+  const postgresVolume = volume("postgres-volume", { alerts: { usage: { "100": {}, "80": {}, "95": {} } }, allowOnlineResize: true, region: "ams", sizeMB: 500 });
 
   // The app: UI and API in one service, built by Railpack from
   // requirements.txt and .python-version (no Dockerfile).
@@ -26,20 +26,22 @@ export default defineRailway(() => {
       // a false "null -> ON_FAILURE" drift, so only the retry count is set here.
       restartPolicyMaxRetries: 5,
     },
-    replicas: { "iad": 1 },
+    replicas: { "ams": 1 },
   });
 
   // The morning digest: same repo and build, runs on a schedule and exits.
-  // Railway cron is UTC: 04:30 UTC is 07:30 Israel in summer, 06:30 in winter.
+  // Railway cron is UTC: 05:00 UTC is 08:00 Israel in summer, 07:00 in winter.
+  // Workdays only: Sunday (0) to Thursday (4). No webhook is set, so the digest
+  // is only printed to the service logs.
   const digest = service("digest", {
     source: bakeryCopilot,
     build: { buildEnvironment: "V3", builder: "RAILPACK" },
     deploy: {
       startCommand: "python -m app.digest",
-      cronSchedule: "30 4 * * *",
+      cronSchedule: "0 5 * * 0-4",
       restartPolicyType: "NEVER",
     },
-    replicas: { "iad": 1 },
+    replicas: { "ams": 1 },
   });
 
   return project("bakery-copilot", {

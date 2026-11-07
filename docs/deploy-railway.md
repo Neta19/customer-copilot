@@ -9,7 +9,7 @@ Commands are written for macOS and Linux (zsh or bash). On Windows, use PowerShe
 | Service | What it is | Built from | Runs |
 |---|---|---|---|
 | `web` | the UI and the API, one FastAPI process | this repo, by Railway's Railpack builder from `requirements.txt` and `.python-version` (3.12); no Dockerfile | `uvicorn app.main:app --host 0.0.0.0 --port $PORT`; health check `GET /health`, 120 s; restarts on failure, 5 retries |
-| `digest` | the morning digest, a cron service | the same repo and the same build | `python -m app.digest` at `30 4 * * *` UTC (07:30 Israel in summer, 06:30 in winter); exits in seconds; never restarts |
+| `digest` | the morning digest, a cron service | the same repo and the same build | `python -m app.digest` at `0 5 * * 0-4` UTC, Sunday to Thursday (08:00 Israel in summer, 07:00 in winter); exits in seconds; never restarts |
 | `Postgres` | Railway's Postgres plugin on a 500 MB volume | Railway | hands out `DATABASE_URL`; the app rewrites `postgresql://` to `postgresql+psycopg://` itself |
 
 Three places hold the configuration, and they do not overlap:
@@ -20,7 +20,7 @@ Three places hold the configuration, and they do not overlap:
 
 ```
  push to main ──► Railway's GitHub app ──► Railpack build ──► web     (uvicorn, /health, public domain)
-                                                         └──► digest  (cron 04:30 UTC, exits)
+                                                         └──► digest  (cron 05:00 UTC, exits)
 
  Variables tab:  web holds the values ──► digest reads them as ${{web.NAME}}
                  Postgres plugin ───────► both read ${{Postgres.DATABASE_URL}}
@@ -100,7 +100,7 @@ Optional in the code (`app/config.py` has the same defaults), but set them anywa
 | `TIMEZONE` | `Asia/Jerusalem` | the local day for the cap, and which day the digest calls "yesterday" |
 | `PYTHONUNBUFFERED` | `1` | so `print` reaches Railway's logs at once; the digest's six lines depend on it |
 | `MAX_TOKENS` | not set (2048) | model output cap |
-| `SESSION_HOURS` | not set (72) | cookie lifetime |
+| `SESSION_HOURS` | not set (9) | cookie lifetime |
 
 Never set on Railway: `MODEL_PROVIDER` (tests only; `fake` answers with scripted replies), `PORT` (Railway injects it and the start command reads `$PORT`), anything starting with `RAILWAY_` (injected).
 
@@ -246,7 +246,7 @@ railway config plan
 railway config apply --yes
 ```
 
-The three lines are the same in PowerShell. `npm install` runs once per machine and installs the `railway` npm package the CLI needs to evaluate `.railway/railway.ts`; it stays under `.railway/` so Railpack keeps seeing a Python project, and `node_modules` is gitignored. `plan` prints the difference between the file and the project; `apply` makes the project match: both start commands, the `/health` check with its 120 s timeout, the restart policies, the digest's schedule, region `iad`, one replica each, the volume. Run `plan` again and it says "already up to date".
+The three lines are the same in PowerShell. `npm install` runs once per machine and installs the `railway` npm package the CLI needs to evaluate `.railway/railway.ts`; it stays under `.railway/` so Railpack keeps seeing a Python project, and `node_modules` is gitignored. `plan` prints the difference between the file and the project; `apply` makes the project match: both start commands, the `/health` check with its 120 s timeout, the restart policies, the digest's schedule, region `ams`, one replica each, the volume. Run `plan` again and it says "already up to date".
 
 Skip this step and `web` starts with Railpack's own guess at a start command, which is wrong for this layout (the app is `app/main.py`, not `main.py`), and `digest` has no schedule, so it runs once and never again.
 
@@ -327,7 +327,7 @@ Do not set the start command, health check, cron schedule or restart policy by h
 
 **Change a variable.** Dashboard → edit → **Deploy**, or `railway variable set NAME=value --service web`, which redeploys `web` at once unless you pass `--skip-deploys`. The digest reads its `${{web.NAME}}` references at its next run. `MODEL` and `MODEL_EFFORT` need an eval run before and after.
 
-**Rotate a secret.** runbook.md, "A key leaked". Order: new value at the source (the Anthropic console, or a random value as in section 3.4), set it on `web` (the digest follows by reference), redeploy, and only then clean Git history if it was in a commit. Rotating `APP_SECRET` signs everyone out. Rotating `APP_PASSWORD` changes only what new logins must type; existing cookies stay valid for up to 72 hours. Rotating `CRON_SECRET` means telling whoever calls `/internal/digest`.
+**Rotate a secret.** runbook.md, "A key leaked". Order: new value at the source (the Anthropic console, or a random value as in section 3.4), set it on `web` (the digest follows by reference), redeploy, and only then clean Git history if it was in a commit. Rotating `APP_SECRET` signs everyone out. Rotating `APP_PASSWORD` changes only what new logins must type; existing cookies stay valid for up to 9 hours. Rotating `CRON_SECRET` means telling whoever calls `/internal/digest`.
 
 **Roll back.** Dashboard → `web` → **Deployments** → the previous green deploy → **Redeploy** (runbook, "App is down"). From the CLI, `railway redeploy --service web --yes` redeploys only the latest build, and `railway redeploy --service web --commit <sha> --yes` deploys one specific commit once (needs GitHub access).
 
@@ -382,7 +382,7 @@ Expect `29115`. `railway ssh --service web -- python -m app.digest` prints the d
 | Deploy log: `ModuleNotFoundError: No module named 'main'`, or "no start command" | the start command from `railway.ts` was never applied | `railway config apply --yes` |
 | The build uses Python 3.13 | `.python-version` is missing from the repo root | it must be there with `3.12`; Railpack reads it |
 | The first deploy's health check times out | seeding the sales table takes up to a minute | wait for the 120 s timeout; `railway logs --service web -d` shows `sales_seeded: 29115`; later deploys are fast |
-| The digest runs at the wrong hour | cron schedules are UTC | `30 4 * * *` is 07:30 IDT and 06:30 IST; change it in `railway.ts`, plan, apply |
+| The digest runs at the wrong hour | cron schedules are UTC | `0 5 * * 0-4` is 08:00 IDT and 07:00 IST; change it in `railway.ts`, plan, apply |
 | `railway logs --service digest` shows nothing for a run | you are reading another deployment, or output was buffered | `railway cron list --service digest` for the run, then `railway logs <deployment-id> --service digest -d`; keep `PYTHONUNBUFFERED=1` |
 | `railway api` answers "Not Authorized" to GitHub queries | the CLI token cannot see the GitHub integration | use the dashboard for anything about repo access |
 | `railway ssh` or `railway connect Postgres`: `No registered SSH keys found` | the database is private, so both go over SSH, and Railway has no key of yours | `railway ssh keys add` (section 6) |
@@ -432,7 +432,7 @@ Most commands take `--service`, `--environment`, `--project`, `--json` and `--ye
 
 ## 9. This deployment, as of 2026-10-27
 
-- Railway: project `bakery-copilot`, environment `production`, services `web`, `digest` and `Postgres`, region `iad`, with a generated `*.up.railway.app` domain. The address is not in this repo: find it in the dashboard (`web` → Settings → Networking) or with `railway domain list --service web`. `railway config plan` reports no drift.
+- Railway: project `bakery-copilot`, environment `production`, services `web`, `digest` and `Postgres`, region `ams`, with a generated `*.up.railway.app` domain. The address is not in this repo: find it in the dashboard (`web` → Settings → Networking) or with `railway domain list --service web`. `railway config plan` reports no drift.
 - Set and verified: every variable in section 3 on both services, except `DIGEST_WEBHOOK_URL`, so the digest prints to the log only. `/health` answers 200; a wrong password gets 401; an off-schedule digest run completed with exit 0.
 - Deploys from GitHub work: the app was installed on 2026-10-27, both services were reconnected with `railway service source connect` (section 4, step 2, since the first `railway add` had left no push trigger), and the head of `main` then built and deployed from GitHub on both services, with `/health` at 200 afterwards.
 - Not done yet: no `DIGEST_WEBHOOK_URL`, and no `ANTHROPIC_API_KEY` Actions secret, so CI skips the evals.
