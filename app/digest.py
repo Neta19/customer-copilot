@@ -16,6 +16,10 @@ from .config import settings
 from .db import Invoice, Message, Run, SessionLocal, init_db
 
 
+# date.weekday(): Monday is 0.
+_HEBREW_DAYS = ["יום שני", "יום שלישי", "יום רביעי", "יום חמישי", "יום שישי", "שבת", "יום ראשון"]
+
+
 def _local_bounds(day: date) -> tuple[datetime, datetime]:
     tz = ZoneInfo(settings.timezone)
     start = datetime.combine(day, time.min, tzinfo=tz).astimezone(timezone.utc).replace(tzinfo=None)
@@ -42,12 +46,12 @@ def build_digest(db: Session, day: date | None = None) -> str:
                       .where(Run.created_at >= start, Run.created_at < end)).one()
     run_count, cost, not_ok = int(runs[0] or 0), float(runs[1] or 0.0), int(runs[2] or 0)
 
-    lines = [f"Lavender Bakery Copilot — {day.strftime('%A %d %b %Y')}",
-             f"Invoices logged: {len(logged)} · total ₪{total:,.0f}",
-             f"Needs a look: {len(needs)}" + (" — " + "; ".join(f"{i.supplier} ({i.invoice_number or 'no number'})" for i in needs[:5]) if needs else ""),
-             f"Flagged over ₪5,000: {len(flagged)}" + (" — " + "; ".join(f"{i.supplier} ₪{i.amount:,.0f}" for i in flagged[:5]) if flagged else ""),
-             f"Chat: {messages} messages · {run_count} model runs · ${cost:.2f} of ${settings.daily_cap_usd:.2f} cap",
-             f"Runs not OK: {not_ok}" + (" — check the runs table and runbook.md" if not_ok else "")]
+    lines = [f"Lavender Bakery Copilot — {_HEBREW_DAYS[day.weekday()]} {day.strftime('%d.%m.%Y')}",
+             f"חשבוניות שנרשמו: {len(logged)} · סה\"כ ₪{total:,.0f}",
+             f"דורשות בדיקה: {len(needs)}" + (" — " + "; ".join(f"{i.supplier} ({i.invoice_number or 'ללא מספר'})" for i in needs[:5]) if needs else ""),
+             f"מסומנות מעל ₪5,000: {len(flagged)}" + (" — " + "; ".join(f"{i.supplier} ₪{i.amount:,.0f}" for i in flagged[:5]) if flagged else ""),
+             f"צ'אט: {messages} הודעות · {run_count} פניות למודל · ${cost:.2f} מתוך תקרה של ${settings.daily_cap_usd:.2f}",
+             f"פניות שנכשלו: {not_ok}" + (" — לבדוק את טבלת runs ואת runbook.md" if not_ok else "")]
     return "\n".join(lines)
 
 

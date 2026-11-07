@@ -146,3 +146,12 @@ def test_digest_endpoint_needs_secret(client, logged_in):
     assert r.status_code == 200
     assert r.json()["text"].startswith("Lavender Bakery Copilot —")
     assert r.json()["sent"] is False
+
+
+def test_today_is_the_last_day_with_data(db):
+    # The bakery data ends in August 2026; asked later, "last week" must still land inside the data.
+    from app.agent import build_system
+    from app.tools.sales import data_range
+
+    _, d_to = data_range(db)
+    assert f"Today is {d_to.isoformat()}" in build_system(db)[0]["text"]

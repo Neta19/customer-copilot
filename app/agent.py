@@ -135,7 +135,9 @@ def get_model_client() -> ModelClient:
 
 def build_system(db: Session) -> list[dict]:
     d_from, d_to = data_range(db)
-    today = datetime.now(ZoneInfo(settings.timezone)).date()
+    real_today = datetime.now(ZoneInfo(settings.timezone)).date()
+    # The data ends before the real date; "today" is the last day with data, so "last week" has an answer.
+    today = min(real_today, d_to) if d_to else real_today
     text = (SYSTEM_PATH.read_text(encoding="utf-8")
             .replace("{{DATA_FROM}}", str(d_from or "unknown")).replace("{{DATA_TO}}", str(d_to or "unknown"))
             .replace("{{BRANCHES}}", ", ".join(branches(db)) or "unknown")
@@ -191,14 +193,14 @@ def _summarise_result(result_text: str) -> str:
 def _friendly(exc: Exception) -> str:
     if anthropic is not None:
         if isinstance(exc, (anthropic.RateLimitError, getattr(anthropic, "OverloadedError", anthropic.RateLimitError))):
-            return "The model is busy right now. Try again in a minute."
+            return "המודל עמוס כרגע. אפשר לנסות שוב בעוד דקה."
         if isinstance(exc, anthropic.AuthenticationError):
-            return "The model key is not valid. Check ANTHROPIC_API_KEY."
+            return "מפתח המודל לא תקין. צריך לבדוק את ANTHROPIC_API_KEY."
         if isinstance(exc, anthropic.APIConnectionError):
-            return "Could not reach the model. Check the connection and try again."
+            return "אין חיבור למודל. צריך לבדוק את החיבור ולנסות שוב."
         if isinstance(exc, anthropic.BadRequestError):
-            return f"The request was rejected: {exc.message if hasattr(exc, 'message') else exc}"
-    return "Something went wrong on our side. The error was recorded; try again."
+            return f"הבקשה נדחתה: {exc.message if hasattr(exc, 'message') else exc}"
+    return "משהו השתבש אצלנו. השגיאה נרשמה; אפשר לנסות שוב."
 
 
 def run_turn(db: Session, *, user: User, conversation: Conversation | None, text: str, image: dict | None,
@@ -209,7 +211,7 @@ def run_turn(db: Session, *, user: User, conversation: Conversation | None, text
     image_ref = f"img_{hashlib.sha256(image['data'].encode()).hexdigest()[:10]}" if image else None
 
     if conversation is None:
-        conversation = Conversation(user_id=user.id, title=(text or "Invoice photo")[:60])
+        conversation = Conversation(user_id=user.id, title=(text or "צילום חשבונית")[:60])
         db.add(conversation)
         db.commit()
         db.refresh(conversation)
