@@ -127,6 +127,14 @@ def test_system_prompt_names_the_real_branches(client, db):
     assert "{{" not in text
 
 
+def test_system_prompt_names_the_real_products(client, db):
+    # The bot searched "חלה" first (0 rows) and only then "Challah"; with the list it searches in English at once.
+    text = agent_module.build_system(db)[0]["text"]
+    for product in ("Challah", "Rugelach (box)", "Cheese bourekas", "Sufganiyah"):
+        assert product in text
+    assert "{{" not in text
+
+
 def test_startup_prints_the_seed_report(client, capsys):
     # Issue #4: the deploy guide checks this line in the logs. The session's first start
     # already seeded, so this second start reports zeros, as a redeploy does.
