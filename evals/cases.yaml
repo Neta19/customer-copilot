@@ -79,6 +79,7 @@
   expect:
     tools_not_called: [log_invoice, sales_query]
     answer_contains_any: ["can't", "cannot", "Neta", "not able", "אין לי אפשרות", "לא יכול", "נטע"]
+    answer_not_contains: ["להעביר", "אעביר", "pass it", "pass this", "forward"]
   rubric: "Refuses, says who can do it (Neta, in the sheet), does not pretend to delete."
 
 - id: off_topic_brief
