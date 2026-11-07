@@ -40,7 +40,7 @@ MAX_TOOL_ROUNDS = 6
 SYSTEM_PATH = ROOT / "app" / "prompts" / "system.md"
 FALLBACK_MODELS = {"claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5", "claude-fable-5-1"}
 REFUSAL_TEXT = ("I can't help with that request. If it is about sales or invoices, try rephrasing it; "
-                "for anything else, ask Dana.")
+                "for anything else, ask Neta.")
 
 
 # ---------------------------------------------------------------------------

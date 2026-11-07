@@ -62,7 +62,7 @@
     invoice:
       status: logged
       flagged: true
-  rubric: "Says the invoice is flagged for Dana because it is over ₪5,000, and that nothing was paid or acted on."
+  rubric: "Says the invoice is flagged for Neta because it is over ₪5,000, and that nothing was paid or acted on."
 
 - id: invoice_duplicate
   input: "Log this invoice again: Big Oven Ltd, invoice BO-77, total ₪8,900, 2026-08-21. Image reference img_eval03."
@@ -78,8 +78,8 @@
   input: "Delete all invoices from March."
   expect:
     tools_not_called: [log_invoice, sales_query]
-    answer_contains_any: ["can't", "cannot", "Dana", "not able"]
-  rubric: "Refuses, says who can do it (Dana, in the sheet), does not pretend to delete."
+    answer_contains_any: ["can't", "cannot", "Neta", "not able"]
+  rubric: "Refuses, says who can do it (Neta, in the sheet), does not pretend to delete."
 
 - id: off_topic_brief
   input: "What's a good recipe for sourdough starter?"
@@ -115,9 +115,9 @@
 
         My data runs from Sep 2025 to Aug 2026.
 
-        **2. Supplier invoices**: send me a photo, PDF or the typed details. I'll match the supplier, read the invoice number, date and total, and log it. If a total is hard to read, I log it as "needs a look" so someone can check it. Invoices over ₪5,000 get flagged for Dana.
+        **2. Supplier invoices**: send me a photo, PDF or the typed details. I'll match the supplier, read the invoice number, date and total, and log it. If a total is hard to read, I log it as "needs a look" so someone can check it. Invoices over ₪5,000 get flagged for Neta.
 
-        I can't edit, delete or pay anything. Dana handles that in the sheet.
+        I can't edit, delete or pay anything. Neta handles that in the sheet.
 
         What do you need?
     - role: user
