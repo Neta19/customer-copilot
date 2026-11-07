@@ -122,7 +122,13 @@
 
     const bot = addBubble("assistant", "");
     const body = bot.querySelector(".body"); body.classList.add("cursor");
-    const meta = document.createElement("div"); meta.className = "meta"; bot.querySelector(".msg-body").appendChild(meta);
+    // Tool steps and cost stay available but folded away behind "איך הגעתי לתשובה".
+    const trace = document.createElement("details"); trace.className = "trace"; trace.hidden = true;
+    const traceTitle = document.createElement("summary");
+    const meta = document.createElement("div"); meta.className = "meta";
+    trace.append(traceTitle, meta); bot.querySelector(".msg-body").appendChild(trace);
+    let steps = 0;
+    const showTrace = () => { trace.hidden = false; traceTitle.textContent = steps ? `איך הגעתי לתשובה (${steps === 1 ? "פעולה אחת" : steps + " פעולות"})` : "איך הגעתי לתשובה"; };
     state.streaming = true; $("send").disabled = true; setStatus("חושב…");
     let full = "";
     try {
@@ -142,8 +148,8 @@
           const ev = JSON.parse(line.slice(6));
           if (ev.type === "meta") { state.current = ev.conversation_id; if (ev.title) $("conv-title").textContent = ev.title; }
           else if (ev.type === "text") { full += ev.text; body.innerHTML = render(full); scrollDown(); }
-          else if (ev.type === "tool") { const c = document.createElement("span"); c.className = `chip tool ${ev.status}`; c.textContent = `${ev.status === "start" ? "⚙" : "✓"} ${ev.name}${ev.summary ? ": " + ev.summary : ""}`; meta.appendChild(c); setStatus(`משתמש ב-${ev.name}…`); }
-          else if (ev.type === "done") { const u = ev.usage || {}; const c = document.createElement("span"); c.className = "chip"; c.textContent = `${u.input_tokens || 0} in · ${u.output_tokens || 0} out · $${(ev.cost_usd || 0).toFixed(4)}`; meta.appendChild(c); }
+          else if (ev.type === "tool") { const c = document.createElement("span"); c.className = `chip tool ${ev.status}`; c.textContent = `${ev.status === "start" ? "⚙" : "✓"} ${ev.name}${ev.summary ? ": " + ev.summary : ""}`; meta.appendChild(c); if (ev.status === "start") steps += 1; showTrace(); setStatus(`משתמש ב-${ev.name}…`); }
+          else if (ev.type === "done") { const u = ev.usage || {}; const c = document.createElement("span"); c.className = "chip"; c.textContent = `${u.input_tokens || 0} in · ${u.output_tokens || 0} out · $${(ev.cost_usd || 0).toFixed(4)}`; meta.appendChild(c); showTrace(); }
           else if (ev.type === "error") { full += `\n\n**שגיאה:** ${ev.message}`; body.innerHTML = render(full); }
         }
       }
