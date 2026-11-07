@@ -93,6 +93,10 @@ def branches(db: Session) -> list[str]:
     return list(db.scalars(select(Sale.branch).distinct().order_by(Sale.branch)))
 
 
+def products(db: Session) -> list[str]:
+    return list(db.scalars(select(Sale.product).distinct().order_by(Sale.product)))
+
+
 def _filters(d_from, d_to, branch, product, category, include_refunded) -> dict:
     return {"date_from": str(d_from) if d_from else None, "date_to": str(d_to) if d_to else None,
             "branch": branch, "product": product, "category": category, "include_refunded": include_refunded}
