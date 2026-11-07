@@ -33,7 +33,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Bakery Copilot", version="0.1.0", lifespan=lifespan, docs_url=None, redoc_url=None)
+app = FastAPI(title="Lavender Bakery Copilot", version="0.1.0", lifespan=lifespan, docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
 
 

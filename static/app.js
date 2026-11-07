@@ -78,8 +78,8 @@
   function addBubble(role, text, { hasImage = false, imageDataUrl = null, time = null } = {}) {
     const div = document.createElement("div");
     div.className = `msg ${role}`;
-    const who = role === "user" ? (state.user ? state.user.name : "You") : "Bakery Copilot";
-    const initial = role === "user" ? who.trim().charAt(0).toUpperCase() : "🥐";
+    const who = role === "user" ? (state.user ? state.user.name : "You") : "Lavender Bakery Copilot";
+    const initial = role === "user" ? who.trim().charAt(0).toUpperCase() : "🌼";
     const when = time ? new Date(time) : new Date();
     const stamp = when.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     let inner = "";
