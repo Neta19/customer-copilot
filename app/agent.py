@@ -136,13 +136,15 @@ def get_model_client() -> ModelClient:
 def build_system(db: Session) -> list[dict]:
     d_from, d_to = data_range(db)
     real_today = datetime.now(ZoneInfo(settings.timezone)).date()
-    # The data ends before the real date; "today" is the last day with data, so "last week" has an answer.
+    # The data ends before the real date; for sales, "today" is the last day with data, so "last week" has an answer.
+    # Invoices use the real date, so a recent invoice is not taken for a future one.
     today = min(real_today, d_to) if d_to else real_today
     text = (SYSTEM_PATH.read_text(encoding="utf-8")
             .replace("{{DATA_FROM}}", str(d_from or "unknown")).replace("{{DATA_TO}}", str(d_to or "unknown"))
             .replace("{{BRANCHES}}", ", ".join(branches(db)) or "unknown")
             .replace("{{PRODUCTS}}", ", ".join(products(db)) or "unknown")
-            .replace("{{TODAY}}", today.isoformat()))
+            .replace("{{TODAY}}", today.isoformat())
+            .replace("{{REAL_TODAY}}", real_today.isoformat()))
     # One cached block: tools + system form the stable prefix every turn reuses.
     return [{"type": "text", "text": text, "cache_control": {"type": "ephemeral"}}]
 

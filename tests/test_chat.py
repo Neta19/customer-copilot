@@ -162,7 +162,21 @@ def test_today_is_the_last_day_with_data(db):
     from app.tools.sales import data_range
 
     _, d_to = data_range(db)
-    assert f"Today is {d_to.isoformat()}" in build_system(db)[0]["text"]
+    assert f"treat {d_to.isoformat()} as today" in build_system(db)[0]["text"]
+
+
+def test_invoices_use_the_real_date(db):
+    # A live invoice dated 5.11.2026 was called "in the future" because the bot's only date was the end of the sales data.
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+
+    from app.agent import build_system
+    from app.config import settings
+
+    real_today = datetime.now(ZoneInfo(settings.timezone)).date()
+    text = build_system(db)[0]["text"]
+    assert f"The real date today is {real_today.isoformat()}" in text
+    assert "{{" not in text
 
 
 def test_digest_covers_yesterday(db):
