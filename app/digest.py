@@ -1,4 +1,4 @@
-"""The morning digest: yesterday in six lines.
+"""The morning digest: yesterday in six lines (on Sunday, Thursday to Saturday).
 
 Runs as a Railway cron service (`python -m app.digest`, schedule in README.md)
 or through POST /internal/digest. It only reads; the rows it reports were
@@ -27,10 +27,22 @@ def _local_bounds(day: date) -> tuple[datetime, datetime]:
     return start, end
 
 
-def build_digest(db: Session, day: date | None = None) -> str:
+def _covered_days(today: date) -> tuple[date, date]:
+    """Sunday covers Thursday to Saturday (no digest runs on Friday or Saturday); other days cover yesterday."""
+    last = today - timedelta(days=1)
+    first = today - timedelta(days=3) if today.weekday() == 6 else last
+    return first, last
+
+
+def build_digest(db: Session, today: date | None = None) -> str:
     tz = ZoneInfo(settings.timezone)
-    day = day or (datetime.now(tz).date() - timedelta(days=1))
-    start, end = _local_bounds(day)
+    today = today or datetime.now(tz).date()
+    first, last = _covered_days(today)
+    start, end = _local_bounds(first)[0], _local_bounds(last)[1]
+    if first == last:
+        title = f"סיכום בוקר על אתמול — {_HEBREW_DAYS[last.weekday()]} {last.strftime('%d.%m.%Y')}"
+    else:
+        title = f"סיכום בוקר על חמישי עד שבת — {first.strftime('%d.%m')}–{last.strftime('%d.%m.%Y')}"
 
     invoices = db.scalars(select(Invoice).where(Invoice.created_at >= start, Invoice.created_at < end)
                           .order_by(Invoice.created_at)).all()
@@ -46,11 +58,11 @@ def build_digest(db: Session, day: date | None = None) -> str:
                       .where(Run.created_at >= start, Run.created_at < end)).one()
     run_count, cost, not_ok = int(runs[0] or 0), float(runs[1] or 0.0), int(runs[2] or 0)
 
-    lines = [f"Lavender Bakery Copilot — {_HEBREW_DAYS[day.weekday()]} {day.strftime('%d.%m.%Y')}",
+    lines = [f"{title} · Lavender Bakery Copilot",
              f"חשבוניות שנרשמו: {len(logged)} · סה\"כ ₪{total:,.0f}",
              f"דורשות בדיקה: {len(needs)}" + (" — " + "; ".join(f"{i.supplier} ({i.invoice_number or 'ללא מספר'})" for i in needs[:5]) if needs else ""),
              f"מסומנות מעל ₪5,000: {len(flagged)}" + (" — " + "; ".join(f"{i.supplier} ₪{i.amount:,.0f}" for i in flagged[:5]) if flagged else ""),
-             f"צ'אט: {messages} הודעות · {run_count} פניות למודל · ${cost:.2f} מתוך תקרה של ${settings.daily_cap_usd:.2f}",
+             f"צ'אט: {messages} הודעות · {run_count} פניות למודל · ${cost:.2f} (התקרה: ${settings.daily_cap_usd:.2f} ליום)",
              f"פניות שנכשלו: {not_ok}" + (" — לבדוק את טבלת runs ואת runbook.md" if not_ok else "")]
     return "\n".join(lines)
 

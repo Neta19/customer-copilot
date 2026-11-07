@@ -144,7 +144,7 @@ def test_digest_endpoint_needs_secret(client, logged_in):
     assert client.post("/internal/digest").status_code == 401
     r = client.post("/internal/digest", headers={"X-Cron-Secret": "cron-test"})
     assert r.status_code == 200
-    assert r.json()["text"].startswith("Lavender Bakery Copilot —")
+    assert r.json()["text"].startswith("סיכום בוקר על ")
     assert r.json()["sent"] is False
 
 
@@ -155,3 +155,27 @@ def test_today_is_the_last_day_with_data(db):
 
     _, d_to = data_range(db)
     assert f"Today is {d_to.isoformat()}" in build_system(db)[0]["text"]
+
+
+def test_digest_covers_yesterday(db):
+    from datetime import date
+
+    from app.digest import build_digest
+
+    text = build_digest(db, today=date(2030, 1, 8))  # a Tuesday
+    assert text.startswith("סיכום בוקר על אתמול — יום שני 07.01.2030 · Lavender Bakery Copilot")
+
+
+def test_sunday_digest_covers_thursday_to_saturday(db):
+    from datetime import date, datetime
+
+    from app.digest import build_digest
+
+    db.add(Invoice(supplier="Thursday Supplier", amount=100, source_ref="digest-thursday",
+                   created_at=datetime(2030, 1, 3, 10, 0)))  # Thursday 12:00 in Israel, stored as UTC
+    db.commit()
+    sunday = build_digest(db, today=date(2030, 1, 6))
+    assert sunday.startswith("סיכום בוקר על חמישי עד שבת — 03.01–05.01.2030")
+    assert "חשבוניות שנרשמו: 1" in sunday
+    monday = build_digest(db, today=date(2030, 1, 7))
+    assert "חשבוניות שנרשמו: 0" in monday  # Thursday is not counted twice
