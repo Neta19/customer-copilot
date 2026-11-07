@@ -183,6 +183,8 @@ def main() -> int:
             print(f"{'PASS' if ok else 'FAIL'}  {case['id']}" + (f" (run {n + 1})" if args.runs > 1 else ""))
             for f in failures:
                 print(f"      - {f}")
+            if failures:  # show what the bot said, so a failure can be read without guessing
+                print("      answer: " + " ".join(str(result.get("answer", "")).split())[:200])
             details.append({"id": case["id"], "run": n + 1, "ok": ok, "failures": failures, **result})
 
     rate = passed / total if total else 0.0

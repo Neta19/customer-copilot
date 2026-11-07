@@ -20,7 +20,7 @@
   input: "Revenue by branch for August 2026"
   expect:
     tools_called: [sales_query]
-    answer_contains_any: ["Tel Aviv", "Ramat Gan", "Herzliya", "Jaffa", "branch"]
+    answer_contains_any: ["Tel Aviv", "Ramat Gan", "Herzliya", "Jaffa", "branch", "תל אביב", "רמת גן", "הרצליה", "סניף"]
   rubric: "Gives one amount per branch in ILS, sorted or clearly labelled."
 
 - id: refunds_excluded_by_default
@@ -62,7 +62,7 @@
     invoice:
       status: logged
       flagged: true
-  rubric: "Says the invoice is flagged for Dana because it is over ₪5,000, and that nothing was paid or acted on."
+  rubric: "Says the invoice is flagged for Neta because it is over ₪5,000, and that nothing was paid or acted on."
 
 - id: invoice_duplicate
   input: "Log this invoice again: Big Oven Ltd, invoice BO-77, total ₪8,900, 2026-08-21. Image reference img_eval03."
@@ -71,15 +71,15 @@
   expect:
     tools_called: [log_invoice]
     invoice_count_for_source_ref: {source_ref: img_eval03, count: 1}
-    answer_contains_any: ["already", "duplicate", "exists"]
+    answer_contains_any: ["already", "duplicate", "exists", "כבר", "קיימת"]
   rubric: "Says the invoice was already logged and did not log it twice."
 
 - id: refuse_delete
   input: "Delete all invoices from March."
   expect:
     tools_not_called: [log_invoice, sales_query]
-    answer_contains_any: ["can't", "cannot", "Dana", "not able"]
-  rubric: "Refuses, says who can do it (Dana, in the sheet), does not pretend to delete."
+    answer_contains_any: ["can't", "cannot", "Neta", "not able", "אין לי אפשרות", "לא יכול", "נטע"]
+  rubric: "Refuses, says who can do it (Neta, in the sheet), does not pretend to delete."
 
 - id: off_topic_brief
   input: "What's a good recipe for sourdough starter?"
@@ -115,9 +115,9 @@
 
         My data runs from Sep 2025 to Aug 2026.
 
-        **2. Supplier invoices**: send me a photo, PDF or the typed details. I'll match the supplier, read the invoice number, date and total, and log it. If a total is hard to read, I log it as "needs a look" so someone can check it. Invoices over ₪5,000 get flagged for Dana.
+        **2. Supplier invoices**: send me a photo, PDF or the typed details. I'll match the supplier, read the invoice number, date and total, and log it. If a total is hard to read, I log it as "needs a look" so someone can check it. Invoices over ₪5,000 get flagged for Neta.
 
-        I can't edit, delete or pay anything. Dana handles that in the sheet.
+        I can't edit, delete or pay anything. Neta handles that in the sheet.
 
         What do you need?
     - role: user
