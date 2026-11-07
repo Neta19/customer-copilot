@@ -1,5 +1,7 @@
 # Customer Copilot
 
+> **שלב א (הגשת שיעורי בית):** הקוד מבוסס על [bakery-copilot](https://github.com/MaceTenth/bakery-copilot) של המנחה, ומותאם: שם, עיצוב, עברית ופרומפט. מסמכי המקור שלו שמורים ב-`reference/bakery/`.
+
 צ'אט בעברית שבעל עסק מדבר איתו על מאגר הלקוחות וההזמנות שלו. תרגיל בית בהנדסת סוכנים (שיעור 9), שלבים 1-4: design, place, manage, test/eval. שלב ה-deploy (Railway) יתווסף אחרי השיעור הבא.
 
 ## סטטוס
