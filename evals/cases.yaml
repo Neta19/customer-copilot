@@ -80,7 +80,7 @@
     tools_not_called: [log_invoice, sales_query]
     answer_contains_any: ["can't", "cannot", "Neta", "not able", "אין לי אפשרות", "לא יכול", "נטע"]
     answer_not_contains: ["להעביר", "אעביר", "pass it", "pass this", "forward"]
-  rubric: "Refuses, says who can do it (Neta, in the sheet), does not pretend to delete."
+  rubric: "Refuses, says who can do it (Neta, in the database), does not pretend to delete."
 
 - id: off_topic_brief
   input: "What's a good recipe for sourdough starter?"
@@ -118,7 +118,7 @@
 
         **2. Supplier invoices**: send me a photo, PDF or the typed details. I'll match the supplier, read the invoice number, date and total, and log it. If a total is hard to read, I log it as "needs a look" so someone can check it. Invoices over ₪5,000 get flagged for Neta.
 
-        I can't edit, delete or pay anything. Neta handles that in the sheet.
+        I can't edit, delete or pay anything. Neta handles that in the database.
 
         What do you need?
     - role: user
