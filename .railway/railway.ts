@@ -7,7 +7,8 @@
 import { defineRailway, github, postgres, project, service, volume } from "railway/iac";
 
 export default defineRailway(() => {
-  const bakeryCopilot = github("Neta19/customer-copilot");
+  // Wait for CI: Railway deploys a push to main only after the GitHub Actions checks pass.
+  const bakeryCopilot = github("Neta19/customer-copilot", { checkSuites: true });
 
   const Postgres = postgres("Postgres", { region: "ams" });
   Postgres.networking = { privateNetworkEndpoint: "postgres" };
