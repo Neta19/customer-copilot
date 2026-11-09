@@ -91,7 +91,7 @@ Optional in the code (`app/config.py` has the same defaults), but set them anywa
 | Name | Production value | Meaning |
 |---|---|---|
 | `APP_ENV` | `production` | turns on the startup check for the three secrets and the `secure` flag on the cookie. Without it a missing `APP_PASSWORD` silently becomes `bakery` and a missing `APP_SECRET` becomes a new random value on every start, which signs everyone out at each deploy |
-| `MODEL` | `claude-opus-5-5` | the chat model. Change it only with an eval run before and after (practice.md) |
+| `MODEL` | `claude-sonnet-5-5` | the chat model. Change it only with an eval run before and after (practice.md) |
 | `MODEL_EFFORT` | `medium` | `low`, `medium` or `high` |
 | `HISTORY_LIMIT` | `20` | messages resent per turn |
 | `RATE_LIMIT_PER_HOUR` | `30` | per user |
@@ -185,7 +185,7 @@ Each starts a build at once. That first deploy fails or boots in local mode (no 
 On `web`, the plain values first. These lines work as they are in zsh, bash and PowerShell. The single quotes matter in all three: without them the shell tries to expand `${{...}}`, and the command fails or the reference arrives broken.
 
 ```bash
-railway variable set --service web --skip-deploys APP_ENV=production MODEL=claude-opus-5-5 MODEL_EFFORT=medium
+railway variable set --service web --skip-deploys APP_ENV=production MODEL=claude-sonnet-5-5 MODEL_EFFORT=medium
 railway variable set --service web --skip-deploys HISTORY_LIMIT=20 RATE_LIMIT_PER_HOUR=30 DAILY_CAP_USD=3.00
 railway variable set --service web --skip-deploys MAX_UPLOAD_MB=5 TIMEZONE=Asia/Jerusalem PYTHONUNBUFFERED=1
 railway variable set --service web --skip-deploys 'DATABASE_URL=${{Postgres.DATABASE_URL}}'
